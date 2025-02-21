@@ -1,7 +1,7 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QProgressBar
-from PyQt6.QtGui import QColor, QPalette
-from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QProgressBar, QHBoxLayout
+from PyQt6.QtGui import QPixmap, QIcon
+from PyQt6.QtCore import QTimer, Qt
 from complexity_checker import analyze_password_strength
 
 class PasswordAnalyzer(QWidget):
@@ -9,7 +9,7 @@ class PasswordAnalyzer(QWidget):
         super().__init__()
 
         self.setWindowTitle("Analyseur de mots de passe")
-        self.setGeometry(100, 100, 400, 250)
+        self.setGeometry(100, 100, 400, 270)
 
         # Activer le dark mode
         self.setStyleSheet("background-color: #121212; color: #ffffff;")
@@ -29,14 +29,25 @@ class PasswordAnalyzer(QWidget):
         self.analyze_button.clicked.connect(self.analyze_password)
         self.layout.addWidget(self.analyze_button)
 
-        # Label du résultat
+        # Layout horizontal pour le résultat + icône centrée
+        self.result_layout = QHBoxLayout()
+        self.result_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Centrage du layout
+
         self.result_label = QLabel("")
-        self.layout.addWidget(self.result_label)
+        self.result_layout.addWidget(self.result_label)
+
+        # Ajout d'une icône dynamique centrée
+        self.icon_label = QLabel()
+        self.icon_label.setPixmap(QPixmap("icons/base.png"))
+        self.icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Centrage de l'icône
+        self.result_layout.addWidget(self.icon_label)
+
+        self.layout.addLayout(self.result_layout)
 
         # Ajout de la barre de progression
         self.progress_bar = QProgressBar(self)
-        self.progress_bar.setRange(0, 100)  # 0% à 100%
-        self.progress_bar.setValue(0)  # Valeur initiale
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(0)
 
         # Style moderne pour la progress bar
         self.progress_bar.setStyleSheet("""
@@ -60,15 +71,13 @@ class PasswordAnalyzer(QWidget):
         password = self.password_input.text()
         strength = analyze_password_strength(password)
 
-        # Calcul du score pour la progress bar
         score = self.get_password_score(strength)
 
-        # Animation fluide de la barre de progression
         self.animate_progress(score)
 
-        # Mise à jour du texte et de la couleur de la progress bar
         self.result_label.setText(f"Force du mot de passe : {strength}")
         self.update_progress_color(score)
+        self.update_icon(strength)
 
     def get_password_score(self, strength):
         levels = ["Très faible", "Faible", "Moyen", "Fort", "Très fort"]
@@ -98,6 +107,18 @@ class PasswordAnalyzer(QWidget):
                 border-radius: 5px;
             }}
         """)
+
+    def update_icon(self, strength):
+        """Met à jour l'icône en fonction de la force du mot de passe"""
+        icon_mapping = {
+            "Très faible": "icons/very_weak.png",
+            "Faible": "icons/weak.png",
+            "Moyen": "icons/medium.png",
+            "Fort": "icons/strong.png",
+            "Très fort": "icons/very_strong.png"
+        }
+        self.icon_label.setPixmap(QPixmap(icon_mapping[strength]))
+        self.icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Assurer le centrage après le changement d'icône
 
     def animate_progress(self, target_value):
         """Anime la progress bar en augmentant progressivement la valeur"""
