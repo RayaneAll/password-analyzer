@@ -6,7 +6,7 @@ def analyze_password_strength(password):
     length_score = min(len(password) / 4, 2)  # Limiter la longueur à 2 points maximum
 
     # Pénalité pour les mots de passe trop courts
-    if len(password) < 6:
+    if len(password) < 12:
         length_score = 0  # Forcer un score faible pour les mots de passe trop courts
     
     # Vérification de la diversité des caractères (majuscule, minuscule, chiffre, spécial)
@@ -30,7 +30,7 @@ def analyze_password_strength(password):
             repetition_score += 1  # Appliquer une pénalité pour les mots de passe avec des motifs simples
 
     # Calcul du score total
-    total_score = length_score + upper_score + lower_score + digit_score + special_score - repetition_score - 2
+    total_score = length_score + upper_score + lower_score + digit_score + special_score - repetition_score - 1
     total_score = max(0, min(total_score, 4))  # Limiter à un score entre 0 et 4
 
     levels = ["Très faible", "Faible", "Moyen", "Fort", "Très fort"]

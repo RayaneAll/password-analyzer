@@ -1,6 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QProgressBar
 from PyQt6.QtGui import QColor, QPalette
+from PyQt6.QtCore import QTimer
 from complexity_checker import analyze_password_strength
 
 class PasswordAnalyzer(QWidget):
@@ -36,8 +37,23 @@ class PasswordAnalyzer(QWidget):
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setRange(0, 100)  # 0% à 100%
         self.progress_bar.setValue(0)  # Valeur initiale
-        self.layout.addWidget(self.progress_bar)
 
+        # Style moderne pour la progress bar
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid #555;
+                border-radius: 5px;
+                background-color: #1e1e1e;
+                text-align: center;
+                color: white;
+            }
+            QProgressBar::chunk {
+                background-color: #ff0000;
+                border-radius: 5px;
+            }
+        """)
+
+        self.layout.addWidget(self.progress_bar)
         self.setLayout(self.layout)
 
     def analyze_password(self):
@@ -46,27 +62,56 @@ class PasswordAnalyzer(QWidget):
 
         # Calcul du score pour la progress bar
         score = self.get_password_score(strength)
-        self.progress_bar.setValue(score)
 
-        # Mise à jour du texte et de la couleur
+        # Animation fluide de la barre de progression
+        self.animate_progress(score)
+
+        # Mise à jour du texte et de la couleur de la progress bar
         self.result_label.setText(f"Force du mot de passe : {strength}")
-        self.update_text_color(score)
+        self.update_progress_color(score)
 
     def get_password_score(self, strength):
         levels = ["Très faible", "Faible", "Moyen", "Fort", "Très fort"]
         return levels.index(strength) * 25  # Convertir le score en pourcentage (0 à 100)
 
-    def update_text_color(self, score):
-        palette = self.result_label.palette()
+    def update_progress_color(self, score):
+        """Change dynamiquement la couleur de la progress bar"""
         if score <= 25:
-            palette.setColor(QPalette.ColorRole.WindowText, QColor("red"))
+            color = "#FF3B30"  # Rouge
         elif score <= 50:
-            palette.setColor(QPalette.ColorRole.WindowText, QColor("orange"))
+            color = "#FF9500"  # Orange
         elif score <= 75:
-            palette.setColor(QPalette.ColorRole.WindowText, QColor("yellow"))
+            color = "#FFD60A"  # Jaune
         else:
-            palette.setColor(QPalette.ColorRole.WindowText, QColor("green"))
-        self.result_label.setPalette(palette)
+            color = "#30D158"  # Vert
+
+        self.progress_bar.setStyleSheet(f"""
+            QProgressBar {{
+                border: 1px solid #555;
+                border-radius: 5px;
+                background-color: #1e1e1e;
+                text-align: center;
+                color: white;
+            }}
+            QProgressBar::chunk {{
+                background-color: {color};
+                border-radius: 5px;
+            }}
+        """)
+
+    def animate_progress(self, target_value):
+        """Anime la progress bar en augmentant progressivement la valeur"""
+        current_value = self.progress_bar.value()
+        step = 1 if target_value > current_value else -1
+
+        def update():
+            nonlocal current_value
+            if current_value != target_value:
+                current_value += step
+                self.progress_bar.setValue(current_value)
+                QTimer.singleShot(10, update)  # Rafraîchir toutes les 10ms
+
+        update()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
