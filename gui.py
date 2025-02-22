@@ -19,10 +19,23 @@ class PasswordAnalyzer(QWidget):
         self.label = QLabel("Entrez un mot de passe :")
         self.layout.addWidget(self.label)
 
+        # Layout pour le champ de mot de passe + bouton œil
+        self.password_layout = QHBoxLayout()
+
         self.password_input = QLineEdit()
         self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.password_input.setStyleSheet("background-color: #1e1e1e; color: #ffffff; border: 1px solid #555; padding: 5px;")
-        self.layout.addWidget(self.password_input)
+        self.password_layout.addWidget(self.password_input)
+
+        # Bouton pour afficher/cacher le mot de passe
+        self.toggle_password_button = QPushButton()
+        self.toggle_password_button.setIcon(QIcon("icons/eye_closed.png"))
+        self.toggle_password_button.setStyleSheet("background: transparent; border: none;")
+        self.toggle_password_button.setFixedSize(24, 24)
+        self.toggle_password_button.clicked.connect(self.toggle_password_visibility)
+        self.password_layout.addWidget(self.toggle_password_button)
+
+        self.layout.addLayout(self.password_layout)
 
         self.analyze_button = QPushButton("Analyser")
         self.analyze_button.setStyleSheet("background-color: #6200EE; color: white; padding: 5px; border-radius: 5px;")
@@ -31,7 +44,7 @@ class PasswordAnalyzer(QWidget):
 
         # Layout horizontal pour le résultat + icône centrée
         self.result_layout = QHBoxLayout()
-        self.result_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Centrage du layout
+        self.result_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.result_label = QLabel("")
         self.result_layout.addWidget(self.result_label)
@@ -39,7 +52,7 @@ class PasswordAnalyzer(QWidget):
         # Ajout d'une icône dynamique centrée
         self.icon_label = QLabel()
         self.icon_label.setPixmap(QPixmap("icons/base.png"))
-        self.icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Centrage de l'icône
+        self.icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.result_layout.addWidget(self.icon_label)
 
         self.layout.addLayout(self.result_layout)
@@ -133,6 +146,15 @@ class PasswordAnalyzer(QWidget):
                 QTimer.singleShot(10, update)  # Rafraîchir toutes les 10ms
 
         update()
+
+    def toggle_password_visibility(self):
+        """Affiche ou masque le mot de passe"""
+        if self.password_input.echoMode() == QLineEdit.EchoMode.Password:
+            self.password_input.setEchoMode(QLineEdit.EchoMode.Normal)
+            self.toggle_password_button.setIcon(QIcon("icons/eye_open.png"))
+        else:
+            self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+            self.toggle_password_button.setIcon(QIcon("icons/eye_closed.png"))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
