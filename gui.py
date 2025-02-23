@@ -2,14 +2,14 @@ import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QProgressBar, QHBoxLayout
 from PyQt6.QtGui import QPixmap, QIcon, QClipboard
 from PyQt6.QtCore import QTimer, Qt
-from complexity_checker import analyze_password_strength
+from complexity_checker import analyze_password_strength, suggest_improvements
 
 class PasswordAnalyzer(QWidget):
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("Analyseur de mots de passe")
-        self.setGeometry(100, 100, 400, 270)
+        self.setGeometry(100, 100, 400, 300)
 
         # Activer le dark mode
         self.setStyleSheet("background-color: #121212; color: #ffffff;")
@@ -49,6 +49,12 @@ class PasswordAnalyzer(QWidget):
         self.analyze_button.setStyleSheet("background-color: #6200EE; color: white; padding: 5px; border-radius: 5px;")
         self.analyze_button.clicked.connect(self.analyze_password)
         self.layout.addWidget(self.analyze_button)
+
+        # Label pour afficher les suggestions d'amélioration
+        self.suggestion_label = QLabel("")
+        self.suggestion_label.setStyleSheet("color: #FFD700; font-size: 12px;")
+        self.suggestion_label.setWordWrap(True)
+        self.layout.addWidget(self.suggestion_label)
 
         # Layout horizontal pour le résultat + icône centrée
         self.result_layout = QHBoxLayout()
@@ -92,12 +98,14 @@ class PasswordAnalyzer(QWidget):
     def analyze_password(self):
         password = self.password_input.text()
         strength = analyze_password_strength(password)
+        suggestions = suggest_improvements(password)
 
         score = self.get_password_score(strength)
 
         self.animate_progress(score)
 
         self.result_label.setText(f"Force du mot de passe : {strength}")
+        self.suggestion_label.setText(f"💡 Suggestions : {suggestions}" if suggestions else "✅ Aucun renforcement nécessaire")
         self.update_progress_color(score)
         self.update_icon(strength)
 
