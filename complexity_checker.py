@@ -36,14 +36,31 @@ def suggest_improvements(password):
 
     if len(password) < 12:
         suggestions.append("Ajoutez plus de caractères (minimum 12 recommandés).")
-    if not re.search(r'[A-Z]', password):
-        suggestions.append("Ajoutez au moins une majuscule.")
-    if not re.search(r'[a-z]', password):
-        suggestions.append("Ajoutez au moins une minuscule.")
-    if not re.search(r'\d', password):
-        suggestions.append("Ajoutez au moins un chiffre.")
-    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        suggestions.append("Ajoutez au moins un caractère spécial (!@#$%^&*...).")
+
+    uppercase_count = len(re.findall(r'[A-Z]', password))
+    lowercase_count = len(re.findall(r'[a-z]', password))
+    digit_count = len(re.findall(r'\d', password))
+    special_count = len(re.findall(r'[!@#$%^&*(),.?":{}|<>]', password))
+
+    if uppercase_count == 0:
+        suggestions.append("Ajoutez au moins 2 majuscules.")
+    elif uppercase_count == 1:
+        suggestions.append("Ajoutez encore 1 majuscule.")
+
+    if lowercase_count == 0:
+        suggestions.append("Ajoutez au moins 2 minuscules.")
+    elif lowercase_count == 1:
+        suggestions.append("Ajoutez encore 1 minuscule.")
+
+    if digit_count == 0:
+        suggestions.append("Ajoutez au moins 2 chiffres.")
+    elif digit_count == 1:
+        suggestions.append("Ajoutez encore 1 chiffre.")
+
+    if special_count == 0:
+        suggestions.append("Ajoutez au moins 2 caractères spéciaux (!@#$%^&*...).")
+    elif special_count == 1:
+        suggestions.append("Ajoutez encore 1 caractère spécial.")
 
     common_patterns = ["123456", "qwerty", "password", "abcdef", "letmein", "admin", "A1!", "abc123", "!@#$%^"]
     for pattern in common_patterns:
